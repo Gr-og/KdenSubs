@@ -53,21 +53,26 @@ color(){
 }
 
 break_line(){
-	sub_count=${#sub[i]}
-	if [ $(bc <<< "$sub_count > $max_char") -eq 1 ]; then
-	sub[i]=$(echo "${sub[i]}" | sed -e "s/.\{,$max_char\}[^ ]*/&\\\\n/g" -e "s/\\\\n /\\\\n/g" -e "s/\\\\n$//")
-	break_count=$(echo "${sub[i]}" | grep -o '\\n' | wc -l)
-	new_box_height=$(bc <<< "$box_height+$box_height*$break_count")
-	new_y=$(bc <<< "$y-$box_height*$break_count")
-	else
-	break_count=0
+	if [[ -z $max_char ]]; then
+		break_count=$(echo "${sub[i]}" | grep -o '\\n' | wc -l)
+	elif [[ $max_char -eq 0 ]]; then
+		break_count=0
+		return
+	elif [[ $max_char -gt 0 ]]; then
+		if [ $(bc <<< "${#sub[i]} > $max_char") -eq 1 ]; then
+		sub[i]=$(echo "${sub[i]}" | sed -e "s/.\{,$max_char\}[^ ]*/&\\\\n/g" -e "s/\\\\n /\\\\n/g" -e "s/\\\\n$//")
+		break_count=$(echo "${sub[i]}" | grep -o '\\n' | wc -l)
+		fi
 	fi
+	new_box_height=$(bc <<< "$box_height*($break_count+1)")
+	[[ $(bc <<< "$box_height>99") -eq 1 ]] && new_y=$(bc <<< "$y-$box_height*$break_count") || new_y=$(bc <<< "$y-$box_height*$break_count*0.8")
 }
 
 convert(){
 	mkdir -p "$folder"
 	readarray -t frm < <( (sed -n '/,[[:digit:]][[:digit:]][[:digit:]] -->/p' ./"$srt") )
-	readarray -t sub < <( (while read line; do [[ "$line" =~ [[:alpha:]] ]] && a+=" $line"; [[ -z "$line" ]] && echo "$a" && a=''; done < ./"$srt") )
+	[[ -n $max_char ]] && readarray -t sub < <( (while read line; do [[ "$line" =~ [[:alpha:]] ]] && a+=" $line"; [[ -z "$line" ]] && echo "$a" | sed 's/^ //' && a=''; done < ./"$srt") )
+	[[ -z $max_char ]] && readarray -t sub < <( (while read line; do [[ "$line" =~ [[:alpha:]] ]] && b+="$line\\n"; [[ -z "$line" ]] && echo "$b" | sed 's/\\n$//' && b=''; done < ./"$srt") )
 	n=1
 	w=$(bc<<<"length(${#sub[@]}*2)")
 	project_width=$(grep -o ' width="[^"]*"' "$template" | tr -d ' width=')
@@ -85,8 +90,7 @@ convert(){
 
 		blank="$(bc <<< "($b*$frate+0.5)/1-($ee*$frate+0.5)/1")"
 		duration="$(bc <<< "($e*$frate+0.5)/1-($b*$frate+0.5)/1")"
-		[[ -n $max_char ]] && break_line || break_count=0
-
+		break_line
 		if [ "$blank" -gt 0 ]; then	
 			sed \
 			-e "s/duration=\"[^\"]*\"/duration=\""$blank"\"/" \
@@ -143,7 +147,7 @@ fps
 color
 echo
 while : ; do
-	read -p 'Set max characters per line ? (Empty: None)'$'\n''max characters:' max_char
+	read -p 'Set max characters per line ? (Empty: Same as srt / 0: Unlimited)'$'\n''max characters:' max_char
 	[[ $max_char =~ ^[[:digit:]]*$ ]] && break
 	echo 'Invalid input'
 done
