@@ -16,7 +16,8 @@ You can input hex colors to change font color without modifing your template fil
 
 #### Max characters per line
 You can set the maximum number of characters per line for long subtitles.
-- Empty: no limit  
+- Empty: Keep same number of lines as srt
+- 0: Unlimited
 
 ## How to use:
 - Download [kdensubs.sh](./kdensubs.sh)
