@@ -66,8 +66,8 @@ break_line(){
 
 convert(){
 	mkdir -p "$folder"
-	readarray -t frm < <( (sed -n '2~4p' ./"$srt") )
-	readarray -t sub < <( (sed -n '3~4p' ./"$srt") )
+	readarray -t frm < <( (sed -n '/,[[:digit:]][[:digit:]][[:digit:]] -->/p' ./"$srt") )
+	readarray -t sub < <( (while read line; do [[ "$line" =~ [[:alpha:]] ]] && a+=" $line"; [[ -z "$line" ]] && echo "$a" && a=''; done < ./"$srt") )
 	n=1
 	w=$(bc<<<"length(${#sub[@]}*2)")
 	project_width=$(grep -o ' width="[^"]*"' "$template" | tr -d ' width=')
