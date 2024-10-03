@@ -14,6 +14,12 @@ You can input hex colors to change font color without modifing your template fil
 - Color 1: (#RRGGBB) changes font to color 1
 - Color 2: (#RRGGBB) uses both colors for a gradient
 
+#### Change vertical position
+You can change the vertical position of the subtitles. y is the distance in pixels from the top.
+- Empty: use same vertical position as template
+- y=0: Top
+- y=project height: Bottom
+
 #### Max characters per line
 You can set the maximum number of characters per line for long subtitles.
 - Empty: Keep same number of lines as srt
