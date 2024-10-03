@@ -33,10 +33,21 @@ fps(){
 	done
 }
 
+position_y(){
+	echo
+	echo 'Change vertical position?'
+	while : ; do
+		echo '[Empty: No / 0: Top / project height: Bottom]'
+		read -p 'y=' custom_y
+		[[ "$custom_y" =~ ^[[:digit:]]*$ ]] && break
+		echo 'Invalid input'
+	done
+}
+
 color(){
 	echo
 	echo "Change font color?"
-	echo "(Empty: No  /  1 Color: font color  /  2 Colors: gradient)"
+	echo "[Empty: No  /  1 Color: font color  /  2 Colors: gradient]"
 		while : ; do
 			read -p "Color 1 (hex): #" color_1
 			[[ $color_1 =~ ^[0-9|a-f]{6}$ || -z $color_1 ]] && break
@@ -62,6 +73,8 @@ break_line(){
 		if [ $(bc <<< "${#sub[i]} > $max_char") -eq 1 ]; then
 		sub[i]=$(echo "${sub[i]}" | sed -e "s/.\{,$max_char\}[^ ]*/&\\\\n/g" -e "s/\\\\n /\\\\n/g" -e "s/\\\\n$//")
 		break_count=$(echo "${sub[i]}" | grep -o '\\n' | wc -l)
+		else
+		break_count=0
 		fi
 	fi
 	new_box_height=$(bc <<< "$box_height*($break_count+1)")
@@ -77,7 +90,7 @@ convert(){
 	w=$(bc<<<"length(${#sub[@]}*2)")
 	project_width=$(grep -o ' width="[^"]*"' "$template" | tr -d ' width=')
 	box_height=$(grep -o 'box-height="[^"]*"' "$template" | tr -d 'boxheight="-')
-	y=$(grep -o 'y="[^"]*">' "$template" | tr -d 'y=">')
+	[[ -n $custom_y ]] && y=$custom_y || y=$(grep -o 'y="[^"]*">' "$template" | tr -d 'y=">')
 
 	for i in "${!frm[@]}"; do
 		b=$(date -d "${frm[i]:0:12}" "+%S.%3N")
@@ -99,7 +112,6 @@ convert(){
 			((n++))
 		fi
 		
-		if [ -z $color_1 ]; then
 			sed \
 			-e "s/duration=\"[^\"]*\"/duration=\""$duration"\"/" \
 			-e "s/<position x=\"[^\"]*\"/<position x=\"0\"/" \
@@ -107,26 +119,9 @@ convert(){
 			-e "s/box-width=\"[^\"]*\"/box-width="$project_width"/" \
 			-e "s/>.*<\/content>$/>${sub[i]}<\/content>/" \
 			./"$template" > ./"$folder"/"$(printf "%0*d" "$w" "$n")".kdenlivetitle
-		elif [ -z $color_2 ]; then
-			sed \
-			-e "s/duration=\"[^\"]*\"/duration=\""$duration"\"/" \
-			-e "s/<position x=\"[^\"]*\"/<position x=\"0\"/" \
-			-e "s/content alignment=\".\"/content alignment=\"4\"/" \
-			-e "s/box-width=\"[^\"]*\"/box-width="$project_width"/" \
-			-e "s/>.*<\/content>$/>${sub[i]}<\/content>/" \
-			-e "s/font-color=\"[^\"]*\"/font-color=\""$color_1",255\"/" \
-			-e "s/\( gradient=\"[^\"]*\"\)\+ letter/ letter/"\
-			./"$template" > ./"$folder"/"$(printf "%0*d" "$w" "$n")".kdenlivetitle
-		else
-			sed \
-			-e "s/duration=\"[^\"]*\"/duration=\""$duration"\"/" \
-			-e "s/<position x=\"[^\"]*\"/<position x=\"0\"/" \
-			-e "s/content alignment=\".\"/content alignment=\"4\"/" \
-			-e "s/box-width=\"[^\"]*\"/box-width="$project_width"/" \
-			-e "s/>.*<\/content>$/>${sub[i]}<\/content>/" \
-			-e "s/\( gradient=\"[^\"]*\"\)\? letter/ gradient=\"#ff$color_1;#ff$color_2;0;100;90\" letter/"\
-			./"$template" > ./"$folder"/"$(printf "%0*d" "$w" "$n")".kdenlivetitle
-		fi
+		
+			if [[ -n $color_2 ]]; then sed -i -e "s/\( gradient=\"[^\"]*\"\)\? letter/ gradient=\"#ff$color_1;#ff$color_2;0;100;90\" letter/" ./"$folder"/"$(printf "%0*d" "$w" "$n")".kdenlivetitle; elif [[ -n $color_1 ]]; then sed -i -e "s/font-color=\"[^\"]*\"/font-color=\""$color_1",255\"/" -e "s/\( gradient=\"[^\"]*\"\)\+ letter/ letter/" ./"$folder"/"$(printf "%0*d" "$w" "$n")".kdenlivetitle; fi
+			[[ -n "$custom_y" ]] && sed -i -e "s/y=\"[^\"]*\">/y=\""$custom_y"\">/" ./"$folder"/"$(printf "%0*d" "$w" "$n")".kdenlivetitle
 			[ "$break_count" -gt 0 ] && sed -i -e "s/y=\"[^\"]*\">/y=\""$new_y"\">/" -e "s/box-height=\"[^\"]*\"/box-height=\""$new_box_height"\"/" ./"$folder"/"$(printf "%0*d" "$w" "$n")".kdenlivetitle
 			((n++))
 	done
@@ -145,9 +140,13 @@ folder="${srt::-4}_Titles"
 echo
 fps
 color
+position_y
 echo
+
+echo 'Set max characters per line ?'
 while : ; do
-	read -p 'Set max characters per line ? (Empty: Same as srt / 0: Unlimited)'$'\n''max characters:' max_char
+	echo '[Empty: Same as srt / 0: Unlimited]'
+	read -p 'max characters:' max_char
 	[[ $max_char =~ ^[[:digit:]]*$ ]] && break
 	echo 'Invalid input'
 done
