@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KdenSubs</title>
+    <link rel="stylesheet" href="CSS/monolith.min.css" />
+    <link rel="stylesheet" href="CSS/icon.css">
+    <link rel="stylesheet" type="text/css" href="CSS/main.css" />
+    <script src="JS/pickr.min.js"></script>
+    <script src="JS/jszip.min.js"></script>
+    <script src="JS/FileSaver.js"></script>
+</head>
+
+<body>
+    <header>
+        <h1>KdenSubs</h1>
+        <p>Convert subtitles to kdenlive titles</p>
+    </header>
+    <div class="input_container">
+        <textarea class="textarea" id="input"></textarea>
+        <div class="separator"></div>
+        <div class="prompt">paste subtitle OR upload SRT file</div>
+        <div class="upload" id="div_upload">
+            <input type="file" id="upload" accept=".srt" style="display:none;">
+            <h3>Upload</h3>
+        </div>
+    </div>
+    <div class="customize_container">
+
+        <div class="project_settigs">
+            <div class="size">
+                <label for="select_size">Project Size:
+                    <select id="select_size">
+                        <option value="3840x2160">4K</option>
+                        <option value="2560x1440">2.5K</option>
+                        <option value="1920x1080" selected="selected">1080p</option>
+                        <option value="1280x720">720p</option>
+                        <option value="854x480">480p</option>
+                        <option value="640x360">360p</option>
+                        <option value="custom">custom...</option>
+                    </select>
+                </label>
+
+                <div class="column" id=custom_div>
+                    <div class="row">
+                        <label for="custom_width">Width:</label>
+                        <input type="number" id="custom_width" placeholder="Width">
+                    </div>
+                    <div class="row">
+                        <label for="custom_height">Height:</label>
+                        <input type="number" id="custom_height" placeholder="Height">
+                    </div>
+                </div>
+            </div>
+
+
+            <label>Framerate:<input type="number" min="1" value="60" id="framerate"></label>
+
+            <button type="button" id="download">Download Subtitles</button>
+
+        </div>
+
+        <div class="canvas">
+            <label>
+                Display Text:<input type="text" id="display_text" value="Drag me!">
+                X: <input type="number" id="text_X">
+                Y: <input type="number" id="text_Y">
+            </label>
+            <label>Show Guides:<input type="checkbox" id="grid" checked></label>
+            <section>
+                <button type="button" id="align_left"><i class="material-icons">format_align_left</i></button>
+                <button type="button" id="align_center"><i class="material-icons">format_align_center</i></button>
+                <button type="button" id="align_right"><i class="material-icons">format_align_right</i></button>
+                <button type="button" id="align_top"><i class="material-icons">vertical_align_top</i></button>
+                <button type="button" id="align_middle"><i class="material-icons">vertical_align_center</i></button>
+                <button type="button" id="align_bottom"><i class="material-icons">vertical_align_bottom</i></button>
+            </section>
+            <canvas id="canvas" style="display:block;">HTML canvas not supported in browser</canvas>
+        </div>
+
+        <form class="form">
+            <select class="two_col" id="select_font"></select>
+            <input class="two_col" type="text" placeholder="Cutom Font" id="custom_font" style="display: none;">
+
+            <label for="font_size">Font Size:</label>
+            <input type="number" id="font_size" max="10000" value="60">
+            <label for="font_weight">Weight:</label>
+            <input type="range" min="100" max="900" step="100" value="400" id="font_weight">
+            <section class="right">
+                <label for="font_underline"><i class="material-icons">format_underlined</i><input type="checkbox" id="font_underline"></label>
+                <label for="italic"><i class="material-icons">format_italic</i><input type="checkbox" id="italic"></label>
+            </section>
+
+
+
+
+            <label><input type="radio" name="fontColor" id="solid_radio" checked>Solid Color:</label>
+            <div id="solid"></div>
+
+            <label><input type="radio" name="fontColor" id="gradient_radio">Gradient:</label>
+            <div id="gradient"></div>
+            <section class="right">
+                <span>0%</span>
+                <input type="range" min="0.01" max="1.99" step="0.01" value="1" id="gradient_slider">
+                <span>100%</span>
+            </section>
+
+
+
+            <label for="font_outline">Font Outline:</label>
+            <section class="grid">
+                <input type="number" min="0" max="200" step="1" value="0" id="font_outline">
+                <div id="font_outline_color"></div>
+            </section>
+
+
+
+
+
+            <fieldset id="shadow_div">
+                <legend><label for="shadow">Shadow<input type="checkbox" id="shadow"></label></legend>
+
+                <label for="shadow_blur">Shadow Blur:</label>
+
+                <input type="number" id="shadow_blur" min="0" max="99" value="5">
+                <div id="shadow_color"></div>
+
+                <label>Offset:</label>
+
+                <input type="number" id="shadow_X" max="100" value="0">
+                <input type="number" id="shadow_Y" max="100" value="0">
+
+            </fieldset>
+
+
+            <label for="letter_spacing">Letter Spacing:</label>
+            <input type="number" id="letter_spacing" max="500" value="0">
+            <label for="line_spacing">Line Spacing:</label>
+            <input type="number" id="line_spacing" max="5000" value="0">
+
+
+
+        </form>
+
+
+
+    </div>
+    <script src="JS/main.js"></script>
+</body>
+
+</html>
