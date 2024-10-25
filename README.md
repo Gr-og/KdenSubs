@@ -1,4 +1,26 @@
-This is a simple bash script to convert ".srt" files to ".kdenlivetitle" files for use in Kdenlive.  
+Convert ".srt" files to ".kdenlivetitle" files for use in Kdenlive.
+
+Do it online with the webapp or offline with the shell script.
+
+# ONLINE TOOL:
+upload your srt file and customise your subtitle.
+
+https://gr-og.github.io/KdenSubs/
+
+![webapp](Images/webapp.png)
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# SHELL SCRIPT:
+Use your own title clip as template offline.
+
+
+![script](Images/script.png)
 
 ## How it works:
 The script uses a **".kdenlivetitle"** template file to create multiple title files containing the subtitle text from an **".srt"** file.  
